@@ -1,14 +1,9 @@
-#########################
-from flask import Flask 
-### IMPORTER VOS PACKAGES
-#########################
+from flask import Flask, render_template, session
 import json
 import random
 
 app = Flask(__name__)
-###########################
-### CONFIGUER LE SECRET KEY
-###########################
+app.config["SECRET_KEY"] = "KFHEJ5hy3Ft5oGHYT78o0P"
 
 def genere_tuile():
     #génère un nombre entre  0 et 5 , les deux inclus
@@ -235,9 +230,21 @@ def genere_niveau():
 
     return level
 
-######################
-### AJOUTER VOS ROUTES
-######################
+@app.route('/')
+def fct1():
+    if not session.get("niveau") is None:
+        return render_template('home.html', nom = 'Candy Crush' , niveau = session["niveau"])
+    else:
+        session["niveau"] = genere_niveau()
+        return render_template('home.html', nom = 'Candy Crush' , niveau = session["niveau"])
+
+@app.route('/demarrer/')
+def fct2():
+    return ''
+
+@app.route('/selection/')
+def fct3():
+    return ''
 
 if __name__ == '__main__':
     app.run(debug=True)
