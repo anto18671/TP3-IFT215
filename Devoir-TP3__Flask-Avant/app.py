@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, redirect, url_for, request
 import json
 import random
 
@@ -232,19 +232,35 @@ def genere_niveau():
 
 @app.route('/')
 def fct1():
-    if not session.get("niveau") is None:
-        return render_template('home.html', nom = 'Candy Crush' , niveau = session["niveau"])
+    if not 'niveau' in session:
+        level = genere_niveau()
+        session["niveau"] = level.__str__()
+        return render_template('home.html', nom = 'Candy Crush' , niveau = level)
     else:
-        session["niveau"] = genere_niveau()
-        return render_template('home.html', nom = 'Candy Crush' , niveau = session["niveau"])
+        level2 = Level()
+        level2.fromJSON(session["niveau"])
+        return render_template('home.html', nom = 'Candy Crush' , niveau = level2)
 
 @app.route('/demarrer/')
 def fct2():
-    return ''
+    level = genere_niveau()
+    session["niveau"] = level.__str__()
+    return redirect(url_for('fct1'))
 
-@app.route('/selection/')
+
+@app.route('/selection/', methods=['POST'])
 def fct3():
-    return ''
+    level = Level()
+    level.fromJSON(session["niveau"])
+    ligne1 = int(request.form['ligne1'])
+    ligne2 = int(request.form['ligne2'])
+    colonne1 = int(request.form['colonne1'])
+    colonne2 = int(request.form['colonne2'])
+
+    level.execute_echange(ligne1, ligne2, colonne1, colonne2)
+    session["niveau"] = level.__str__()
+
+    return redirect(url_for('fct1'))
 
 if __name__ == '__main__':
     app.run(debug=True)
